@@ -25,12 +25,22 @@ public class Main {
 		}
 		
 		listStock = new ArrayList<Stock>();
-		
+
 		listStock.add(new Stock("썔바이오","049960"));
+		listStock.add(new Stock("삼성전자","005930"));
 		//..
 		
 		for(int i=0; i<listStock.size(); i++) {
-			listStock.get(i).updateYearReport();
+			Stock stock = listStock.get(i);
+			
+			stock.updateYearReport();
+			
+			Prt.w(stock.getName());
+			int reportSize = stock.getYearReportCnt();
+			for(int j =0; j < reportSize; j++) {
+				String out = stock.getYear(j) + "    " + stock.getYearProfit(j);
+				Prt.w(out);
+			}
 		}
 			
 	}

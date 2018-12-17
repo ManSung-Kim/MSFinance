@@ -1,11 +1,16 @@
 package com.gtk.msfinance;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import Utils.Prt;
 
@@ -24,6 +29,10 @@ public class Stock {
 		arrYearReport = new ArrayList<YearReport>(); 
 		
 		makeUrl(crp_cd);		
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 	private void makeUrl(String crp_cd) {
@@ -48,7 +57,7 @@ public class Stock {
 				String rcpNo = report.get("rcp_no") + "";
 				String strReportMainHTML = HttpAction.sendGet(getReportMainJson(rcpNo));
 				
-				Thread.sleep(2000);
+				//Thread.sleep(2000);
 				
 				/*
 				 * 
@@ -64,7 +73,7 @@ viewDoc(
 				 * 
 				 */
 				strReportMainHTML = strReportMainHTML.replaceAll("\\s", "");
-				String[] sp1 =strReportMainHTML.split("요약재무정보");
+				String[] sp1 = strReportMainHTML.split("재무에관한사항");
 				if(sp1.length <= 1 )
 					continue;
 				String[] sp2 =sp1[1].split("}");
@@ -77,10 +86,16 @@ viewDoc(
 				params = params.replace(";", "");
 				String[] sp6 =params.split(",");
 				
-				Prt.w( " " + sp6[0] + " " + sp6[1] + " " + sp6[2] + " "+ sp6[3] + " "+ sp6[4] + " "+ sp6[5] + " ");
+				//Prt.w( " " + sp6[0] + " " + sp6[1] + " " + sp6[2] + " "+ sp6[3] + " "+ sp6[4] + " "+ sp6[5] + " ");
 //				arrYearReport.add(new YearReport(
 //						report.get("rcp_no"), 
 //						report.get("dcm, ele, offset, length, dtd));
+				
+				String year = sp6[0].substring(0, 4);
+				
+				//setYearProfit(getYearProfit(sp6));
+				
+				arrYearReport.add(new YearReport(year, getYearProfit(sp6)));
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -91,9 +106,74 @@ viewDoc(
 		}
 	}
 	
+	private String getYearProfit(String[] urlParams) {
+		//String strUrlForm = "http://dart.fss.or.kr/report/viewer.do?rcpNo=20180402000415&dcmNo=6044090&eleId=11&offset=158198&length=928688&dtd=dart3.xsd";
+		String strUrl = "http://dart.fss.or.kr/report/viewer.do?rcpNo=" + urlParams[0]
+				+ "&dcmNo=" + urlParams[1]
+						+ "&eleId=" + urlParams[2]
+								+ "&offset=" + urlParams[3]
+										+ "&length=" + urlParams[4] 
+												+ "&dtd=" + urlParams[5];
+		
+		Document doc = null;
+		String strProfit = "";
+		try {
+			doc = Jsoup.connect(strUrl).get();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			Elements elements = doc.select("table tbody tr td");
+			for(Element item : elements) {
+				if(item.text().contains("영업이익")) {
+					strProfit = item.nextElementSibling().text();
+					strProfit = strProfit.replace(",", "");
+					//Prt.w(profitTd);
+					break;
+				}
+			}
+		}
+		
+		return strProfit;
+		//String strYearProfitHTML = "";
+		
+//		try {
+//			strYearProfitHTML = HttpAction.sendGet(strUrl);
+//			//Prt.w(strYearProfit);
+//			
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} finally {
+//
+//			
+//			strYearProfitHTML = strYearProfitHTML.replaceAll("\\s", "");
+//			String[] sp1 = strYearProfitHTML.split("영업이익");
+//			if(sp1.length <= 1 )
+//				return;
+//			
+//			String[] sp2 =sp1[1].split("</TD>");
+//			String[] sp3 =sp2[0].split(">");
+//			Prt.w("영업이익 " + sp3[0]);
+//		}
+		
+	}
+	
 	private final String STR_REPORT_MAIN_PREFIX = "http://dart.fss.or.kr/dsaf001/main.do?rcpNo=";
 	private String getReportMainJson(String rcpNo) {
 		return STR_REPORT_MAIN_PREFIX + rcpNo;
+	}
+	
+	public int getYearReportCnt() {
+		return arrYearReport.size();
+	}
+
+	public String getYear(int idx) {
+		return arrYearReport.get(idx).getYear();
+	}
+	
+	public String getYearProfit(int idx) {
+		return arrYearReport.get(idx).getYearProfit();
 	}
 }
 
@@ -107,6 +187,10 @@ class YearReport {
 	
 	private String url;
 	
+	// Report
+	private String mYear;
+	private String mStrYearProfit;
+	
 	private final String STR_AND = "&";
 	private final String URL_PREFIX = "http://dart.fss.or.kr/report/viewer.do?";
 	private final String STR_RCPNO = "rcpNo=";
@@ -115,6 +199,11 @@ class YearReport {
 	private final String STR_OFFSET = "offset=";
 	private final String STR_LENGTH = "length=";
 	private final String STR_DTD = "dtd=";
+	
+	public YearReport(String year, String yearProfit) {
+		mYear = year;
+		mStrYearProfit = yearProfit;
+	}
 	
 	public YearReport(String rcp, String dcm, String ele, String offset,
 			String length, String dtd) {
@@ -137,6 +226,18 @@ class YearReport {
 		url += (STR_AND + STR_OFFSET + this.offset);
 		url += (STR_AND + STR_LENGTH + this.length);
 		url += (STR_AND + STR_DTD + this.dtd);		
+	}
+	
+	public void setYearProfit(String strYProfit) {
+		mStrYearProfit = strYProfit;
+	}
+	
+	public String getYear() {
+		return mYear;
+	}
+	
+	public String getYearProfit() {
+		return mStrYearProfit;
 	}
 }
 
