@@ -78,24 +78,33 @@ viewDoc(
 					continue;
 				String[] sp2 =sp1[1].split("}");
 				String[] sp3 =sp2[0].split("viewDoc");
-				//String[] sp4 =sp3[1].split("(");
 				String params = sp3[1].replaceAll("\\(","");
 				params = params.replaceAll("\\)","");
 				params = params.replace(" ", "");
 				params = params.replace("'", "");
 				params = params.replace(";", "");
-				String[] sp6 =params.split(",");
+				String[] urlParams =params.split(","); // 
 				
-				//Prt.w( " " + sp6[0] + " " + sp6[1] + " " + sp6[2] + " "+ sp6[3] + " "+ sp6[4] + " "+ sp6[5] + " ");
-//				arrYearReport.add(new YearReport(
-//						report.get("rcp_no"), 
-//						report.get("dcm, ele, offset, length, dtd));
+				// year
+				String year = urlParams[0].substring(0, 4);				
 				
-				String year = sp6[0].substring(0, 4);
+				// table elements
+				Elements tblElements = getTableElements(urlParams, "table tbody tr td");
 				
-				//setYearProfit(getYearProfit(sp6));
+				if(tblElements == null)
+					continue;
 				
-				arrYearReport.add(new YearReport(year, getYearProfit(sp6)));
+				// year profit
+				String strYearProfit = getYearProfit(tblElements, urlParams);
+								
+				if(strYearProfit == null || strYearProfit == "")
+					continue;
+				
+				// year report instance
+				YearReport yearReport = new YearReport(year, strYearProfit);
+				
+				// add year report item
+				arrYearReport.add(yearReport);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -106,7 +115,30 @@ viewDoc(
 		}
 	}
 	
-	private String getYearProfit(String[] urlParams) {
+	private Elements getTableElements(String[] urlParams, String form) {
+		Elements elements = null; 
+		String strUrl = "http://dart.fss.or.kr/report/viewer.do?rcpNo=" + urlParams[0]
+				+ "&dcmNo=" + urlParams[1]
+						+ "&eleId=" + urlParams[2]
+								+ "&offset=" + urlParams[3]
+										+ "&length=" + urlParams[4] 
+												+ "&dtd=" + urlParams[5];
+		
+		Document doc = null;
+		String strProfit = "";
+		try {
+			doc = Jsoup.connect(strUrl).get();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			elements = doc.select("table tbody tr td");
+		}
+		
+		return elements;
+	}
+	
+	private String getYearProfit(Elements elements, String[] urlParams) {
 		//String strUrlForm = "http://dart.fss.or.kr/report/viewer.do?rcpNo=20180402000415&dcmNo=6044090&eleId=11&offset=158198&length=928688&dtd=dart3.xsd";
 		String strUrl = "http://dart.fss.or.kr/report/viewer.do?rcpNo=" + urlParams[0]
 				+ "&dcmNo=" + urlParams[1]
@@ -123,7 +155,7 @@ viewDoc(
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			Elements elements = doc.select("table tbody tr td");
+			strProfit = getTableItem("영업이익", elements);
 			for(Element item : elements) {
 				if(item.text().contains("영업이익")) {
 					strProfit = item.nextElementSibling().text();
@@ -135,28 +167,20 @@ viewDoc(
 		}
 		
 		return strProfit;
-		//String strYearProfitHTML = "";
 		
-//		try {
-//			strYearProfitHTML = HttpAction.sendGet(strUrl);
-//			//Prt.w(strYearProfit);
-//			
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} finally {
-//
-//			
-//			strYearProfitHTML = strYearProfitHTML.replaceAll("\\s", "");
-//			String[] sp1 = strYearProfitHTML.split("영업이익");
-//			if(sp1.length <= 1 )
-//				return;
-//			
-//			String[] sp2 =sp1[1].split("</TD>");
-//			String[] sp3 =sp2[0].split(">");
-//			Prt.w("영업이익 " + sp3[0]);
-//		}
-		
+	}
+	
+	private String getTableItem(String key, Elements elements) {
+		String strItem = "";
+		for(Element item : elements) {
+			if(item.text().contains(key)) {
+				strItem = item.nextElementSibling().text();
+				strItem = strItem.replace(",", "");
+				//Prt.w(profitTd);
+				break;
+			}
+		}
+		return strItem;
 	}
 	
 	private final String STR_REPORT_MAIN_PREFIX = "http://dart.fss.or.kr/dsaf001/main.do?rcpNo=";
@@ -178,12 +202,12 @@ viewDoc(
 }
 
 class YearReport {
-	private String rcpNo;
-	private String dcmNo;
-	private String eleId;
-	private String offset;
-	private String length;
-	private String dtd;
+//	private String rcpNo;
+//	private String dcmNo;
+//	private String eleId;
+//	private String offset;
+//	private String length;
+//	private String dtd;
 	
 	private String url;
 	
@@ -205,28 +229,28 @@ class YearReport {
 		mStrYearProfit = yearProfit;
 	}
 	
-	public YearReport(String rcp, String dcm, String ele, String offset,
-			String length, String dtd) {
-		rcpNo = rcp;
-		dcmNo = dcm;
-		eleId = ele;
-		this.offset = offset;
-		this.length = length;
-		this.dtd = dtd;
-		
-		makeUrl(rcp, dcm, ele, offset, length, dtd);
-	}
+//	public YearReport(String rcp, String dcm, String ele, String offset,
+//			String length, String dtd) {
+//		rcpNo = rcp;
+//		dcmNo = dcm;
+//		eleId = ele;
+//		this.offset = offset;
+//		this.length = length;
+//		this.dtd = dtd;
+//		
+//		makeUrl(rcp, dcm, ele, offset, length, dtd);
+//	}
 	
-	private void makeUrl(String rcp, String dcm, String ele, String offset,
-			String length, String dtd) {
-		url = URL_PREFIX;
-		url += (STR_RCPNO + rcpNo);
-		url += (STR_AND + STR_DCMNO + dcmNo);
-		url += (STR_AND + STR_ELEID + eleId);
-		url += (STR_AND + STR_OFFSET + this.offset);
-		url += (STR_AND + STR_LENGTH + this.length);
-		url += (STR_AND + STR_DTD + this.dtd);		
-	}
+//	private void makeUrl(String rcp, String dcm, String ele, String offset,
+//			String length, String dtd) {
+//		url = URL_PREFIX;
+//		url += (STR_RCPNO + rcpNo);
+//		url += (STR_AND + STR_DCMNO + dcmNo);
+//		url += (STR_AND + STR_ELEID + eleId);
+//		url += (STR_AND + STR_OFFSET + this.offset);
+//		url += (STR_AND + STR_LENGTH + this.length);
+//		url += (STR_AND + STR_DTD + this.dtd);		
+//	}
 	
 	public void setYearProfit(String strYProfit) {
 		mStrYearProfit = strYProfit;
