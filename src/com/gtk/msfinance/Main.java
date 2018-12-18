@@ -38,7 +38,8 @@ public class Main {
 			Prt.w(stock.getName());
 			int reportSize = stock.getYearReportCnt();
 			for(int j =0; j < reportSize; j++) {
-				String out = stock.getYear(j) + "년]    영업이익" + stock.getYearProfit(j)+", ";
+				String out = stock.getYear(j) + "년]    영업이익:" + stock.getYearProfit(j)+", "
+						+ " 판관비:"+stock.getSNGA(j);
 				Prt.w(out);
 			}
 		}
