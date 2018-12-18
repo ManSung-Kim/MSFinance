@@ -88,14 +88,20 @@ viewDoc(
 				// year
 				String year = urlParams[0].substring(0, 4);				
 				
+				// documents
+				Document doc = getDocument(urlParams);
+				
+				if(doc == null)
+					continue;
+				
 				// table elements
-				Elements tblElements = getTableElements(urlParams, "table tbody tr td");
+				Elements tblElements = getTableElements(doc, "table tbody tr td");
 				
 				if(tblElements == null)
 					continue;
 				
 				// year profit
-				String strYearProfit = getYearProfit(tblElements, urlParams);
+				String strYearProfit = getYearProfit(tblElements);
 								
 				if(strYearProfit == null || strYearProfit == "")
 					continue;
@@ -115,59 +121,33 @@ viewDoc(
 		}
 	}
 	
-	private Elements getTableElements(String[] urlParams, String form) {
-		Elements elements = null; 
-		String strUrl = "http://dart.fss.or.kr/report/viewer.do?rcpNo=" + urlParams[0]
-				+ "&dcmNo=" + urlParams[1]
-						+ "&eleId=" + urlParams[2]
-								+ "&offset=" + urlParams[3]
-										+ "&length=" + urlParams[4] 
-												+ "&dtd=" + urlParams[5];
-		
-		Document doc = null;
-		String strProfit = "";
-		try {
-			doc = Jsoup.connect(strUrl).get();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			elements = doc.select("table tbody tr td");
-		}
-		
-		return elements;
+	private Elements getTableElements(Document doc, String form) {		
+		return doc.select("table tbody tr td");
 	}
 	
-	private String getYearProfit(Elements elements, String[] urlParams) {
-		//String strUrlForm = "http://dart.fss.or.kr/report/viewer.do?rcpNo=20180402000415&dcmNo=6044090&eleId=11&offset=158198&length=928688&dtd=dart3.xsd";
-		String strUrl = "http://dart.fss.or.kr/report/viewer.do?rcpNo=" + urlParams[0]
+	private final String STR_DART_FINANCIAL_STATEMENTS_URL_PREFIX = "http://dart.fss.or.kr/report/viewer.do?rcpNo=";
+	private Document getDocument(String[] urlParams) {
+		Document doc = null;
+		
+		String strUrl = STR_DART_FINANCIAL_STATEMENTS_URL_PREFIX + urlParams[0]
 				+ "&dcmNo=" + urlParams[1]
 						+ "&eleId=" + urlParams[2]
 								+ "&offset=" + urlParams[3]
 										+ "&length=" + urlParams[4] 
 												+ "&dtd=" + urlParams[5];
 		
-		Document doc = null;
-		String strProfit = "";
 		try {
 			doc = Jsoup.connect(strUrl).get();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			strProfit = getTableItem("영업이익", elements);
-			for(Element item : elements) {
-				if(item.text().contains("영업이익")) {
-					strProfit = item.nextElementSibling().text();
-					strProfit = strProfit.replace(",", "");
-					//Prt.w(profitTd);
-					break;
-				}
-			}
 		}
 		
-		return strProfit;
-		
+		return doc;
+	}
+	
+	private final String STR_YEAR_PROFIT_KEY = "영업이익";
+	private String getYearProfit(Elements elements) {
+		return getTableItem(STR_YEAR_PROFIT_KEY, elements);		
 	}
 	
 	private String getTableItem(String key, Elements elements) {
