@@ -78,8 +78,13 @@ public class Stock {
 				// url parameters
 				String[] urlParams = getUrlParams(strReportMainHTML, "재무에관한사항");
 				
+				if(urlParams == null || urlParams[0] == null) {
+					Prt.w("URL NULL로 Return");
+				}
+				
 				// year
-				String year = urlParams[0].substring(0, 4);				
+				String year = urlParams[0].substring(0, 4);		
+				
 				
 				// documents
 				Document doc = getDocument(urlParams);
@@ -101,26 +106,26 @@ public class Stock {
 				
 				// selling, general & administrative 판매관리비
 				String strSGNA = getSellingGeneralAndAdministrativeExpensive(tblElements); // 판매관리비
-				
-				if(strSGNA == null || strSGNA == "") { // TODO : wrap to retry
-					urlParams = getUrlParams(strReportMainHTML, "재무제표등");
-					if(urlParams == null)
-						continue;
-					//Prt.w(urlParams[0]+"");
-					year = urlParams[0].substring(0, 4);		
-					doc = getDocument(urlParams);
-					if(doc == null)
-						continue;
-					tblElements = getTableElements(doc, "table tbody tr td");					
-					if(tblElements == null)
-						continue;
-					strYearProfit = getYearProfit(tblElements);					
-					if(strYearProfit == null || strYearProfit == "")
-						continue;
-					strSGNA = getSellingGeneralAndAdministrativeExpensive(tblElements);
-					if(strSGNA == null || strSGNA == "") 
-						continue;
-				}
+				strSGNA = "";
+//				if(strSGNA == null || strSGNA == "") { // TODO : wrap to retry
+//					urlParams = getUrlParams(strReportMainHTML, "재무제표등");
+//					if(urlParams == null)
+//						continue;
+//					//Prt.w(urlParams[0]+"");
+//					year = urlParams[0].substring(0, 4);		
+//					doc = getDocument(urlParams);
+//					if(doc == null)
+//						continue;
+//					tblElements = getTableElements(doc, "table tbody tr td");					
+//					if(tblElements == null)
+//						continue;
+//					strYearProfit = getYearProfit(tblElements);					
+//					if(strYearProfit == null || strYearProfit == "")
+//						continue;
+//					strSGNA = getSellingGeneralAndAdministrativeExpensive(tblElements);
+//					if(strSGNA == null || strSGNA == "") 
+//						continue;
+//				}
 				
 				// year report instance
 				YearReport yearReport = new YearReport(year);
