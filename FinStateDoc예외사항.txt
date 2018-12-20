@@ -1,0 +1,18 @@
+예외재무제표
+
+http://dart.fss.or.kr/dsaf001/main.do?rcpNo=20140515000258
+재무제표가 '연 결 재 무 제 표' 임...
+
+http://dart.fss.or.kr/dsaf001/main.do?rcpNo=20070514000591
+aj렌터카
+2007년 사업보고서의 rcpNo에 접소하면 정정신고라는 문서가 접속됨.
+해당 문서는 첨부이고 본문에 접속할 수 있어야 함.
+http://dart.fss.or.kr/api/search.json?auth=bda9679be5e210e6ec2eda39ea350bacade99cd8&crp_cd=068400&start_dt=19990101&fin_rpt=Y&bsn_tp=A001&page_set=100&page_no=1
+로 접속해서 rcp_no를 확인하여도 2007년도 사업보고서에 대한건 2007...0591밖에 없음
+본문->사업보고서는 아래와 같은 html로 함께 실려옴
+<optionvalue="rcpNo=20070330002144"title="사업보고서">
+
+
+http://dart.fss.or.kr/dsaf001/main.do?rcpNo=20070629000498
+GS의 정정신고에 표시된 결합 재무제표. 본문은 최신이 아니고 첨부의 정정신고가 최신이고 이 곳에 영업이익에대한
+'결 합 재 무 제 표'가 있다.

@@ -73,18 +73,35 @@ public class Stock {
 				 * 
 				 */
 				strReportMainHTML = strReportMainHTML.replaceAll("\\s", "");
-				//String[] sp1 = strReportMainHTML.split("재무에관한사항");
 				
 				// url parameters
-				String[] urlParams = getUrlParams(strReportMainHTML, "재무에관한사항");
+				String[] urlParams = getUrlParamsWithTockens(strReportMainHTML);
 				
-				if(urlParams == null || urlParams[0] == null) {
-					Prt.w("URL NULL로 Return");
+				/*
+				 * 정정신고가 있는 경우, 재무제표 템플릿이 있는경우, 없는경우, 있어도 이상한경우가 너무 많아서
+				 * 정정신고가 발견되면 본문의 최초 사업보고서를 참조함. 코드간결성을위해서..
+				 */
+				if(urlParams == null || urlParams[0] == null 
+						|| strReportMainHTML.contains("정정신고(보고")) { 
+					//Prt.w(getName() + " URL NULL로 Return."+i);
+					// 첨부에 재무제표가 없고 본문으로 이동해야 사업보고서가 있는 경우
+					// find main doc, <optionvalue="rcpNo=20070330002144"title="사업보고서">
+					String[] splited = strReportMainHTML.split("\"title=\"사업보고서");
+					splited = splited[0].split("rcpNo=");
+					rcpNo = splited[splited.length - 1];
+					strReportMainHTML = HttpAction.sendGet(getReportMainJson(rcpNo)).replaceAll("\\s", "");
+					urlParams = getUrlParamsWithTockens(strReportMainHTML);
+					if(urlParams == null || urlParams[0] == null) {
+						Prt.w(getName() + " URL NULL로 Return2."+i);
+					}
+						
 				}
 				
 				// year
 				String year = urlParams[0].substring(0, 4);		
-				
+				if(year == null) {
+					Prt.w(getName() + " year NULL로 Return."+i);
+				}
 				
 				// documents
 				Document doc = getDocument(urlParams);
@@ -148,6 +165,7 @@ public class Stock {
 		String[] sp1 = html.split(financitalStatementsKey);
 		if(sp1.length <= 1 )
 			return null;
+		
 		String[] sp2 =sp1[1].split("}");
 		String[] sp3 =sp2[0].split("viewDoc");
 		String params = sp3[1].replaceAll("\\(","");
@@ -156,6 +174,20 @@ public class Stock {
 		params = params.replace("'", "");
 		params = params.replace(";", "");
 		String[] urlParams =params.split(","); // 
+		
+		return urlParams;
+	}
+	
+	private String[] getUrlParamsWithTockens(String strReportMainHTML) {
+		String[] urlParams = null;
+		
+		int finStateTockenListLen = FinancialStatement.STR_FINANCIAL_STATEMENT_TOKEN_LIST.length;
+		for(int finStateTockenIdx = 0; finStateTockenIdx < finStateTockenListLen; finStateTockenIdx++) {
+			urlParams = getUrlParams(strReportMainHTML, 
+					FinancialStatement.STR_FINANCIAL_STATEMENT_TOKEN_LIST[finStateTockenIdx]);
+			if(urlParams != null)
+				break;				
+		}
 		
 		return urlParams;
 	}
