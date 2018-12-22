@@ -2,6 +2,7 @@ package com.gtk.msfinance;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -10,6 +11,7 @@ import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import Utils.Prt;
@@ -230,16 +232,72 @@ public class Stock {
 		String strItem = "";
 		for(Element item : elements) {
 			if(item.text().contains(key)) {
+				// check multiple variable in td 
+				boolean isMultiItemsInTd = false;
+				int targetIdx = 0;
+				
+				if(isMultiItemsInTd(item)) {
+					targetIdx = getMultiItemsIndexInTd(item);
+					if(targetIdx == -1) // not found
+						break;
+					isMultiItemsInTd = true;
+				}
+				
+				// get profit value
 				Element subElements = item.nextElementSibling();
+				
 				if(subElements == null)
 					break;
+				
 				strItem = subElements.text();
+				
+				// if multi value, get single profit
+				if(isMultiItemsInTd)
+					strItem = getYearProfitSingleItemInTd(subElements, targetIdx);
+				
+				if(strItem == null)
+					break;				
+				
 				strItem = strItem.replace(",", "");
 				//Prt.w(profitTd);
 				break;
 			}
 		}
 		return strItem;
+	}
+	
+	/* 
+	 * case, variable items in one <td>
+	 * <td width="209" height="227" valign="TOP">[매출액]<br>[영업이익(영업손실)]<br>[계속영업당기순이익(손실)]<br>[중단영업당기순이익(손실)]<br>[당기순이익(당기순손실)]<br>지배기업소유주지분 순이익<br>비지배지분 순이익<br>총포괄손익<br>기본주당순이익<br>희석주당순이익</td> 
+	 */
+	private boolean isMultiItemsInTd(Element item) {
+		return (item.childNodes().size() > 1) ? true : false;
+	}
+
+	/* 
+	 * case, variable items in one <td>
+	 * <td width="209" height="227" valign="TOP">[매출액]<br>[영업이익(영업손실)]<br>[계속영업당기순이익(손실)]<br>[중단영업당기순이익(손실)]<br>[당기순이익(당기순손실)]<br>지배기업소유주지분 순이익<br>비지배지분 순이익<br>총포괄손익<br>기본주당순이익<br>희석주당순이익</td> 
+	 */
+	private int getMultiItemsIndexInTd(Element item) {
+		int targetIdx = -1;
+		List<Node> listChild = item.childNodes(); //[매출액]<br>[영업이익(영업손실)]<br>[계속영업당기순이익(손실)]<br>[중단영업당기순이익(손실)]<br>[당기순이익(당기순손실)]<br>지배기업소유주지분 순이익<br>비지배지분 순이익<br>총포괄손익<br>기본주당순이익<br>희석주당순이익
+		
+		if(listChild == null)
+			return targetIdx;
+		
+		int len = listChild.size();
+		for(int i = 0; i < len; i++) {
+			String s = listChild.get(i).toString();
+			if(listChild.get(i).toString().contains(STR_YEAR_PROFIT_KEY)) {
+				targetIdx = i;
+				break;
+			}
+		}
+		return targetIdx;
+	}
+	
+	private String getYearProfitSingleItemInTd(Element items, int targetIdx) {				
+		return items.childNodes().get(targetIdx).toString();		
 	}
 	
 	private final String STR_REPORT_MAIN_PREFIX = "http://dart.fss.or.kr/dsaf001/main.do?rcpNo=";
