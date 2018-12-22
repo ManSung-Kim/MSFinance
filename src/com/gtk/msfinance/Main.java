@@ -31,8 +31,6 @@ public class Main {
 //		listStock.add(new Stock("계양전기","012200"));
 		int stocksSize = listStock.size();
 		for(int i = 0; i < stocksSize; i++) {
-			if(i<23)
-				continue;
 			Stock stock = listStock.get(i);
 			
 			stock.updateYearReport();
