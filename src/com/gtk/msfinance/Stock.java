@@ -261,8 +261,14 @@ public class Stock {
 				strItem = subElements.text();
 				
 				// if multi value, get single profit
-				if(isMultiItemsInTd)
-					strItem = getYearProfitSingleItemInTd(subElements, targetIdx);
+				if(isMultiItemsInTd) {
+					Node node = getYearProfitSingleNodeInTd(subElements, targetIdx);					
+					int childSize = node.childNodes().size();
+					if(childSize < 1)
+						strItem = node.toString();
+					else
+						strItem = node.childNodes().get(0).toString(); // <td> <p>영업이익</p> </td>
+				}
 				
 				if(strItem == null)
 					break;				
@@ -305,8 +311,8 @@ public class Stock {
 		return targetIdx;
 	}
 	
-	private String getYearProfitSingleItemInTd(Element items, int targetIdx) {				
-		return items.childNodes().get(targetIdx).toString();		
+	private Node getYearProfitSingleNodeInTd(Element items, int targetIdx) {				
+		return items.childNodes().get(targetIdx);		
 	}
 	
 	private final String STR_REPORT_MAIN_PREFIX = "http://dart.fss.or.kr/dsaf001/main.do?rcpNo=";
