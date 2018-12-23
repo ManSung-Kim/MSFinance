@@ -168,9 +168,18 @@ public class Stock {
 		if(sp1.length <= 1 )
 			return null;
 		
-		String[] sp2 =sp1[1].split("}");
+		String[] sp2 =sp1[1].split("}");		
+		if(sp2 == null)
+			return null;
+		
 		String[] sp3 =sp2[0].split("viewDoc");
+		if(sp3 == null || sp3.length <= 1)
+			return null;
+		
 		String params = sp3[1].replaceAll("\\(","");
+		if(params == null)
+			return null;
+		
 		params = params.replaceAll("\\)","");
 		params = params.replace(" ", "");
 		params = params.replace("'", "");
