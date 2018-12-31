@@ -1,13 +1,11 @@
 package com.gtk.msfinance;
 
-import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import DocMgr.CsvMgr;
 import Utils.Prt;
@@ -18,6 +16,14 @@ public class Main {
 		
 	public static void main(String[] args) {
 	
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {            
+            @Override
+            public void run() {
+                CsvMgr.closeAll();
+            }
+        }));
+
+		
 		listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);
 //		for(int i=0; i<listStock.size(); i++) 
 //			Prt.w(i + " " + listStock.get(i).getName() + " " + listStock.get(i).crp_cd);
@@ -29,11 +35,21 @@ public class Main {
 		//..
 //		listStock = new ArrayList<Stock>();
 //		listStock.add(new Stock("계양전기","012200"));
+		
+		String strWriteFilePath = "csv\\data" + System.currentTimeMillis() + ".csv";
+		CsvMgr.initStaticBufferedWriter(strWriteFilePath);
+		
+		//List<String> listFinancialStatement = new ArrayList<String>();
+		
+		String strYearTag = "";
+		for(int i = 2018; i >= 1970; i--)
+			strYearTag += "," + i;
+		//listFinancialStatement.add(strYearTag);
+		CsvMgr.writeFileNoneStop(strYearTag);
 		int stocksSize = listStock.size();
 		for(int i = 0; i < stocksSize; i++) {
-			if(i<68)
-				continue;
 			Stock stock = listStock.get(i);
+			String strStockCsv = stock.getName();
 			
 			stock.updateYearReport();
 			
@@ -42,15 +58,23 @@ public class Main {
 			String out = "";
 			out += i + "/" +stocksSize + " ";
 			out += stock.getName() + "] ";
-			for(int j =0; j < reportSize; j++) {
-//				String out = stock.getYear(j) + "년]    영업이익:" + stock.getYearProfit(j)+", "
-//						+ " 판관비:"+stock.getSNGA(j);
-//				Prt.w(out);
-				out += stock.getYear(j) + "," + stock.getYearProfit(j) + "  ";
+			
+			String strYear = "";
+			String strYearProfit = "";
+			for(int j = 0; j < reportSize; j++) {
+				strYear = stock.getYear(j);
+				strYearProfit = stock.getYearProfit(j);
+				
+				out += strYear + "," + strYearProfit + "  ";
+				strStockCsv += "," + strYearProfit;
 			}
 			Prt.w(out);
+			//listFinancialStatement.add(strStockCsv);
+			CsvMgr.writeFileNoneStop(strStockCsv);
 		}
-			
+		//CsvMgr.writeFile("csv\\data.csv", listFinancialStatement);
+		CsvMgr.closeAll();
 	}
 
+	
 }
