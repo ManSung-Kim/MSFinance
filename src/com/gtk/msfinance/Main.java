@@ -16,6 +16,14 @@ public class Main {
 		
 	public static void main(String[] args) {
 	
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {            
+            @Override
+            public void run() {
+                CsvMgr.closeAll();
+            }
+        }));
+
+		
 		listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);
 //		for(int i=0; i<listStock.size(); i++) 
 //			Prt.w(i + " " + listStock.get(i).getName() + " " + listStock.get(i).crp_cd);
@@ -38,7 +46,6 @@ public class Main {
 			strYearTag += "," + i;
 		//listFinancialStatement.add(strYearTag);
 		CsvMgr.writeFileNoneStop(strYearTag);
-		
 		int stocksSize = listStock.size();
 		for(int i = 0; i < stocksSize; i++) {
 			Stock stock = listStock.get(i);

@@ -47,6 +47,7 @@ public class CsvMgr {
 		try {			
 			bw.write(data);
 			bw.newLine();
+			bw.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
