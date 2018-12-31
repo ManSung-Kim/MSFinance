@@ -262,7 +262,7 @@ public class Stock {
 				
 				// if multi value, get single profit
 				if(isMultiItemsInTd) {
-					if(subElements.childNodeSize() > 1) { 					
+					if(subElements.childNodeSize() > 1) { // refer to single child condition, when main element's child are multi variable(<td><p>YearProfit), but sub element's child is single(<td>199,100,199,100)					
 						Node node = getYearProfitSingleNodeInTd(subElements, targetIdx);					
 						int childSize = node.childNodes().size();
 						if(childSize < 1)
