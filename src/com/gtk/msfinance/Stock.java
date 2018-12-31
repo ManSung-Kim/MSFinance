@@ -262,12 +262,14 @@ public class Stock {
 				
 				// if multi value, get single profit
 				if(isMultiItemsInTd) {
-					Node node = getYearProfitSingleNodeInTd(subElements, targetIdx);					
-					int childSize = node.childNodes().size();
-					if(childSize < 1)
-						strItem = node.toString();
-					else
-						strItem = node.childNodes().get(0).toString(); // <td> <p>영업이익</p> </td>
+					if(subElements.childNodeSize() > 1) { 					
+						Node node = getYearProfitSingleNodeInTd(subElements, targetIdx);					
+						int childSize = node.childNodes().size();
+						if(childSize < 1)
+							strItem = node.toString();
+						else
+							strItem = node.childNodes().get(0).toString(); // <td> <p>영업이익</p> </td>
+					}
 				}
 				
 				if(strItem == null)
