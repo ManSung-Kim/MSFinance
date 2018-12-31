@@ -367,31 +367,8 @@ class YearReport {
 		mYear = year;
 	}
 	
-//	public YearReport(String rcp, String dcm, String ele, String offset,
-//			String length, String dtd) {
-//		rcpNo = rcp;
-//		dcmNo = dcm;
-//		eleId = ele;
-//		this.offset = offset;
-//		this.length = length;
-//		this.dtd = dtd;
-//		
-//		makeUrl(rcp, dcm, ele, offset, length, dtd);
-//	}
-	
-//	private void makeUrl(String rcp, String dcm, String ele, String offset,
-//			String length, String dtd) {
-//		url = URL_PREFIX;
-//		url += (STR_RCPNO + rcpNo);
-//		url += (STR_AND + STR_DCMNO + dcmNo);
-//		url += (STR_AND + STR_ELEID + eleId);
-//		url += (STR_AND + STR_OFFSET + this.offset);
-//		url += (STR_AND + STR_LENGTH + this.length);
-//		url += (STR_AND + STR_DTD + this.dtd);		
-//	}
-		
 	public void setYearProfit(String strYProfit) {
-		mStrYearProfit = strYProfit;
+		mStrYearProfit = translateMinus(strYProfit);
 	}
 	
 	public void setSGNA(String strSGNA) {
@@ -408,6 +385,17 @@ class YearReport {
 	
 	public String getSGNA() {
 		return mStrSGNA;
+	}
+	
+	private String translateMinus(String input) {
+		String ret = "";
+		String strInputWithoutNumber = input.replaceAll("[0-9]", ""); // all number change to null
+		if(strInputWithoutNumber.length() != 0) {
+			ret = "-" + input.replaceAll("[^0-9]",""); // all not number change to null and add '-' prefix
+		} else {
+			ret = input;
+		}		
+		return ret;
 	}
 }
 
