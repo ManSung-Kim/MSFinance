@@ -1,14 +1,11 @@
 package com.gtk.msfinance;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Arrays;
 import DocMgr.CsvMgr;
+import Math.Polynomials;
 import Utils.Prt;
+
 
 public class Main {
 
@@ -23,7 +20,13 @@ public class Main {
             }
         }));
 
-		
+		try {
+			Polynomials.test(3);
+	        return;
+		} catch (Exception e) {
+			
+		}
+				
 		listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);
 //		for(int i=0; i<listStock.size(); i++) 
 //			Prt.w(i + " " + listStock.get(i).getName() + " " + listStock.get(i).crp_cd);
