@@ -2,6 +2,8 @@ package com.gtk.msfinance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
+
 import DocMgr.CsvMgr;
 import Math.Polynomials;
 import Utils.Prt;
@@ -10,7 +12,7 @@ import Utils.Prt;
 public class Main {
 
 	static ArrayList<Stock> listStock;
-		
+			
 	public static void main(String[] args) {
 	
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {            
@@ -19,7 +21,32 @@ public class Main {
                 CsvMgr.closeAll();
             }
         }));
-				
+		
+		String strMenu = "1. record from all stocks\n"
+				+"2. analysis1\n"
+				+ "select menu : ";
+		System.out.print(strMenu);
+		Scanner scanner = new Scanner(System.in);
+		String input = scanner.nextLine();
+		switch(Integer.parseInt(input)) {
+		case 1:
+			recFromAllStocks();
+			break;
+		case 2:
+			analysis1();
+			break;
+		default:
+			break;	
+		}
+		
+		
+	}
+
+	private static void analysis1() { // title not defined yet 
+		Polynomials.test(3);
+	}
+	
+	private static void recFromAllStocks() {
 		listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);
 //		for(int i=0; i<listStock.size(); i++) 
 //			Prt.w(i + " " + listStock.get(i).getName() + " " + listStock.get(i).crp_cd);
@@ -71,6 +98,5 @@ public class Main {
 		//CsvMgr.writeFile("csv\\data.csv", listFinancialStatement);
 		CsvMgr.closeAll();
 	}
-
 	
 }
