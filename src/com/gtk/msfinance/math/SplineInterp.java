@@ -1,4 +1,4 @@
-package Math;
+package com.gtk.msfinance.math;
 
 import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;

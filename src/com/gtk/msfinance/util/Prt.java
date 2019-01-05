@@ -1,4 +1,4 @@
-package Utils;
+package com.gtk.msfinance.util;
 
 public class Prt {
 	private static boolean ALL_OFF = false;

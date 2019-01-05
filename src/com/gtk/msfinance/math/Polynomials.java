@@ -1,4 +1,4 @@
-package Math;
+package com.gtk.msfinance.math;
 
 import java.util.Arrays;
 

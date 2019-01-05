@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import DocMgr.CsvMgr;
-import Math.Polynomials;
-import Utils.Prt;
+import com.gtk.msfinance.docmgr.CsvMgr;
+import com.gtk.msfinance.math.Polynomials;
+import com.gtk.msfinance.util.Prt;
+
 
 
 public class Main {
