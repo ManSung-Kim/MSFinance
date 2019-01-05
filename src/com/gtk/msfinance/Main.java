@@ -19,13 +19,6 @@ public class Main {
                 CsvMgr.closeAll();
             }
         }));
-
-		try {
-			Polynomials.test(3);
-	        return;
-		} catch (Exception e) {
-			
-		}
 				
 		listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);
 //		for(int i=0; i<listStock.size(); i++) 
