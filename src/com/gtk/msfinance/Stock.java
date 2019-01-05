@@ -14,7 +14,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
-import Utils.Prt;
+import com.gtk.msfinance.util.Prt;
+
 
 public class Stock {
 	public String name;
