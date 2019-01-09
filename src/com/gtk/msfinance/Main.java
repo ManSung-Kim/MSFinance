@@ -11,8 +11,6 @@ import com.gtk.msfinance.util.Prt;
 
 
 public class Main {
-
-	static ArrayList<Stock> listStock;
 			
 	public static void main(String[] args) {
 	
@@ -48,6 +46,8 @@ public class Main {
 	}
 	
 	private static void recFromAllStocks() {
+		ArrayList<Stock> listStock;
+		
 		listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);
 //		for(int i=0; i<listStock.size(); i++) 
 //			Prt.w(i + " " + listStock.get(i).getName() + " " + listStock.get(i).crp_cd);
