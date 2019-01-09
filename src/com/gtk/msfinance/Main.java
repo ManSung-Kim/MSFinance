@@ -1,7 +1,6 @@
 package com.gtk.msfinance;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import com.gtk.msfinance.docmgr.CsvMgr;
@@ -48,17 +47,15 @@ public class Main {
 	private static void recFromAllStocks() {
 		ArrayList<Stock> listStock;
 		
-		listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);
-//		for(int i=0; i<listStock.size(); i++) 
-//			Prt.w(i + " " + listStock.get(i).getName() + " " + listStock.get(i).crp_cd);
-		
-//		listStock = new ArrayList<Stock>();
-//
-//		listStock.add(new Stock("썔바이오","049960"));
-//		listStock.add(new Stock("삼성전자","005930"));
-		//..
-//		listStock = new ArrayList<Stock>();
-//		listStock.add(new Stock("계양전기","012200"));
+		final boolean isTestMode = true;
+		if(isTestMode) { // test data
+			listStock = new ArrayList<Stock>();
+			listStock.add(new Stock("썔바이오","049960"));
+			listStock.add(new Stock("계양전기","012200"));
+			listStock.add(new Stock("삼성전자","005930"));
+		} else { // read all dat from csv
+			listStock = CsvMgr.getList("csv\\data_stocks.csv", 1);			
+		}
 		
 		String strWriteFilePath = "csv\\data" + System.currentTimeMillis() + ".csv";
 		CsvMgr.initStaticBufferedWriter(strWriteFilePath);
@@ -77,22 +74,50 @@ public class Main {
 			
 			stock.updateYearReport();
 			
-			//Prt.w(stock.getName());
 			int reportSize = stock.getYearReportCnt();
 			String out = "";
 			out += i + "/" +stocksSize + " ";
-			out += stock.getName() + "] ";
+			out += stock.getName() + "] ";			
+			Prt.w(out);	
+			
+			//
+			String strYearProfits = "";
+			String strNetIncomes = "";		
+			String strTotalAssetTotals = "";		
+			String strROAs = "";			
+
+			strYearProfits += "영업이익] ";
+			strNetIncomes += "당기순이익] ";
+			strTotalAssetTotals += "자산총계] ";
+			strROAs += "자산수익률ROA] ";
 			
 			String strYear = "";
 			String strYearProfit = "";
+			String strNetIncome = "";
+			String strTotalAssets = "";
+			double roa = .0f;
+			
 			for(int j = 0; j < reportSize; j++) {
 				strYear = stock.getYear(j);
 				strYearProfit = stock.getYearProfit(j);
+				strNetIncome = stock.getNetIncome(j);
+				strTotalAssets = stock.getTotalAssets(j);
+				roa = stock.getROA(j);
+
+				strYearProfits += strYear + "," + strYearProfit + "  ";
+				strNetIncomes += strYear + "," + strNetIncome + "  ";
+				strTotalAssetTotals += strYear + "," + strTotalAssets + "  ";
+				strROAs += strYear + "," + roa + "  ";
 				
-				out += strYear + "," + strYearProfit + "  ";
+				// csv
 				strStockCsv += "," + strYearProfit;
-			}
-			Prt.w(out);
+			}	
+
+			Prt.w(strYearProfits);	
+			Prt.w(strNetIncomes);	
+			Prt.w(strTotalAssetTotals);	
+			Prt.w(strROAs);	
+			
 			//listFinancialStatement.add(strStockCsv);
 			CsvMgr.writeFileNoneStop(strStockCsv);
 		}
