@@ -15,6 +15,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import com.gtk.msfinance.util.Prt;
+import com.gtk.msfinance.util.StrUtil;
 
 
 public class Stock {
@@ -124,6 +125,11 @@ public class Stock {
 				if(strYearProfit == null || strYearProfit == "")
 					continue;
 				
+				// total assets
+				String strTotalAssets = getTotalAssets(tblElements);
+				
+				String strNetIncome = getNetIncome(tblElements);
+				
 				// selling, general & administrative 판매관리비
 				String strSGNA = getSellingGeneralAndAdministrativeExpensive(tblElements); // 판매관리비
 				strSGNA = "";
@@ -150,6 +156,9 @@ public class Stock {
 				// year report instance
 				YearReport yearReport = new YearReport(year);
 				yearReport.setYearProfit(strYearProfit);
+				yearReport.setNetIncome(strNetIncome);
+				yearReport.setTotalAssets(strTotalAssets);
+				yearReport.updateROA();
 				yearReport.setSGNA(strSGNA);
 				
 				// add year report item
@@ -227,10 +236,20 @@ public class Stock {
 		
 		return doc;
 	}
-	
+
 	private final String STR_YEAR_PROFIT_KEY = "영업이익";
 	private String getYearProfit(Elements elements) { // 영업이익
 		return getTableItem(STR_YEAR_PROFIT_KEY, elements);		
+	}
+
+	private final String STR_TOTAL_ASSETS_KEY = "자산총계";
+	private String getTotalAssets(Elements elements) { // 영업이익
+		return getTableItem(STR_TOTAL_ASSETS_KEY, elements);		
+	}
+	
+	private final String STR_NET_INCOME_KEY = "당기순이익";
+	private String getNetIncome(Elements elements) { // 영업이익
+		return getTableItem(STR_NET_INCOME_KEY, elements);		
 	}
 	
 	private final String STR_SGNA_KEY = "판매비와관리비";
@@ -247,7 +266,7 @@ public class Stock {
 				int targetIdx = 0;
 				
 				if(isMultiItemsInTd(item)) {
-					targetIdx = getMultiItemsIndexInTd(item);
+					targetIdx = getMultiItemsIndexInTd(item, key);
 					if(targetIdx == -1) // not found
 						break;
 					isMultiItemsInTd = true;
@@ -296,7 +315,7 @@ public class Stock {
 	 * case, variable items in one <td>
 	 * <td width="209" height="227" valign="TOP">[매출액]<br>[영업이익(영업손실)]<br>[계속영업당기순이익(손실)]<br>[중단영업당기순이익(손실)]<br>[당기순이익(당기순손실)]<br>지배기업소유주지분 순이익<br>비지배지분 순이익<br>총포괄손익<br>기본주당순이익<br>희석주당순이익</td> 
 	 */
-	private int getMultiItemsIndexInTd(Element item) {
+	private int getMultiItemsIndexInTd(Element item, String key) {
 		int targetIdx = -1;
 		List<Node> listChild = item.childNodes(); //[매출액]<br>[영업이익(영업손실)]<br>[계속영업당기순이익(손실)]<br>[중단영업당기순이익(손실)]<br>[당기순이익(당기순손실)]<br>지배기업소유주지분 순이익<br>비지배지분 순이익<br>총포괄손익<br>기본주당순이익<br>희석주당순이익
 		
@@ -306,7 +325,7 @@ public class Stock {
 		int len = listChild.size();
 		for(int i = 0; i < len; i++) {
 			String s = listChild.get(i).toString();
-			if(listChild.get(i).toString().contains(STR_YEAR_PROFIT_KEY)) {
+			if(listChild.get(i).toString().contains(key)) {
 				targetIdx = i;
 				break;
 			}
@@ -335,6 +354,18 @@ public class Stock {
 		return arrYearReport.get(idx).getYearProfit();
 	}
 	
+	public String getNetIncome(int idx) {
+		return arrYearReport.get(idx).getNetIncome();
+	}
+
+	public String getTotalAssets(int idx) {
+		return arrYearReport.get(idx).getTotalAssets();
+	}
+	
+	public double getROA(int idx) {
+		return arrYearReport.get(idx).getROA();
+	}
+	
 	public String getSNGA(int idx) {
 		return arrYearReport.get(idx).getSGNA();
 	}
@@ -353,6 +384,9 @@ class YearReport {
 	// Report
 	private String mYear; // 연도
 	private String mStrYearProfit; // 영업이익
+	private String mStrNetIncome; // 당기순이익
+	private String mStrTotalAssets; // 자산총계
+	private double mROA = 0.0f; // 자산총계
 	private String mStrSGNA; // 판관비
 	
 	private final String STR_AND = "&";
@@ -367,9 +401,27 @@ class YearReport {
 	public YearReport(String year) {
 		mYear = year;
 	}
-	
+
 	public void setYearProfit(String strYProfit) {
 		mStrYearProfit = translateMinus(strYProfit);
+	}
+
+	public void setNetIncome(String strNetIncome) {
+		mStrNetIncome = translateMinus(strNetIncome);
+	}
+
+	public void setTotalAssets(String strAssets) {
+		mStrTotalAssets = translateMinus(strAssets);
+	}
+
+	public void updateROA() {
+		if(StrUtil.isNull(mStrNetIncome))
+			return;
+
+		if(StrUtil.isNull(mStrTotalAssets))
+			return;		
+		
+		mROA = (Double.parseDouble(mStrNetIncome) / Double.parseDouble(mStrTotalAssets)) * 100;
 	}
 	
 	public void setSGNA(String strSGNA) {
@@ -379,9 +431,21 @@ class YearReport {
 	public String getYear() {
 		return mYear;
 	}
-	
+
 	public String getYearProfit() {
 		return mStrYearProfit;
+	}
+	
+	public String getNetIncome() {
+		return mStrNetIncome;
+	}
+	
+	public String getTotalAssets() {
+		return mStrTotalAssets;
+	}
+	
+	public double getROA() {
+		return mROA;
 	}
 	
 	public String getSGNA() {
