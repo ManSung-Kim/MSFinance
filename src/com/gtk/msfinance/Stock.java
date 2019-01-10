@@ -124,9 +124,12 @@ public class Stock {
 								
 				if(strYearProfit == null || strYearProfit == "")
 					continue;
-				
+
 				// total assets
 				String strTotalAssets = getTotalAssets(tblElements);
+
+				// total dept
+				String strTotalDept = getTotalDept(tblElements);
 				
 				String strNetIncome = getNetIncome(tblElements);
 				
@@ -158,7 +161,9 @@ public class Stock {
 				yearReport.setYearProfit(strYearProfit);
 				yearReport.setNetIncome(strNetIncome);
 				yearReport.setTotalAssets(strTotalAssets);
+				yearReport.setTotalDept(strTotalDept);
 				yearReport.updateROA();
+				yearReport.updateROE();
 				yearReport.setSGNA(strSGNA);
 				
 				// add year report item
@@ -245,6 +250,11 @@ public class Stock {
 	private final String STR_TOTAL_ASSETS_KEY = "자산총계";
 	private String getTotalAssets(Elements elements) { // 영업이익
 		return getTableItem(STR_TOTAL_ASSETS_KEY, elements);		
+	}
+	
+	private final String STR_TOTAL_DEPT_KEY = "부채총계";
+	private String getTotalDept(Elements elements) { // 영업이익
+		return getTableItem(STR_TOTAL_DEPT_KEY, elements);		
 	}
 	
 	private final String STR_NET_INCOME_KEY = "당기순이익";
@@ -361,9 +371,17 @@ public class Stock {
 	public String getTotalAssets(int idx) {
 		return arrYearReport.get(idx).getTotalAssets();
 	}
+
+	public String getTotalDept(int idx) {
+		return arrYearReport.get(idx).getTotalDept();
+	}
 	
 	public double getROA(int idx) {
 		return arrYearReport.get(idx).getROA();
+	}
+	
+	public double getROE(int idx) {
+		return arrYearReport.get(idx).getROE();
 	}
 	
 	public String getSNGA(int idx) {
@@ -386,7 +404,9 @@ class YearReport {
 	private String mStrYearProfit; // 영업이익
 	private String mStrNetIncome; // 당기순이익
 	private String mStrTotalAssets; // 자산총계
+	private String mStrTotalDept; // 부채총계
 	private double mROA = 0.0f; // 자산총계
+	private double mROE = 0.0f; // 자산총계
 	private String mStrSGNA; // 판관비
 	
 	private final String STR_AND = "&";
@@ -413,6 +433,10 @@ class YearReport {
 	public void setTotalAssets(String strAssets) {
 		mStrTotalAssets = translateMinus(strAssets);
 	}
+	
+	public void setTotalDept(String strDept) {
+		mStrTotalDept = translateMinus(strDept);
+	}
 
 	public void updateROA() {
 		if(StrUtil.isNull(mStrNetIncome))
@@ -422,6 +446,22 @@ class YearReport {
 			return;		
 		
 		mROA = (Double.parseDouble(mStrNetIncome) / Double.parseDouble(mStrTotalAssets)) * 100;
+	}
+
+	/**
+	 * NetIncom / (TotalAssets - TotalDept)
+	 */
+	public void updateROE() {
+		if(StrUtil.isNull(mStrNetIncome))
+			return;
+
+		if(StrUtil.isNull(mStrTotalAssets))
+			return;		
+		
+		if(StrUtil.isNull(mStrTotalDept))
+			return;		
+		
+		mROE = (Double.parseDouble(mStrNetIncome) / (Double.parseDouble(mStrTotalAssets) - Double.parseDouble(mStrTotalDept))) * 100;
 	}
 	
 	public void setSGNA(String strSGNA) {
@@ -444,8 +484,16 @@ class YearReport {
 		return mStrTotalAssets;
 	}
 	
+	public String getTotalDept() {
+		return mStrTotalDept;
+	}
+	
 	public double getROA() {
 		return mROA;
+	}
+	
+	public double getROE() {
+		return mROE;
 	}
 	
 	public String getSGNA() {

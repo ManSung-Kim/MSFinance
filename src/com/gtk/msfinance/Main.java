@@ -84,30 +84,40 @@ public class Main {
 			String strYearProfits = "";
 			String strNetIncomes = "";		
 			String strTotalAssetTotals = "";		
-			String strROAs = "";			
+			String strTotalDepts = "";		
+			String strROAs = "";		
+			String strROEs = "";			
 
 			strYearProfits += "영업이익] ";
 			strNetIncomes += "당기순이익] ";
 			strTotalAssetTotals += "자산총계] ";
-			strROAs += "자산수익률ROA] ";
+			strTotalDepts += "부채총계] ";
+			strROAs += "총자산순수(이)익률ROA] ";
+			strROEs += "자기자본수(이)익률ROE] ";
 			
 			String strYear = "";
 			String strYearProfit = "";
 			String strNetIncome = "";
 			String strTotalAssets = "";
+			String strTotalDept = "";
 			double roa = .0f;
+			double roe = .0f;
 			
 			for(int j = 0; j < reportSize; j++) {
 				strYear = stock.getYear(j);
 				strYearProfit = stock.getYearProfit(j);
 				strNetIncome = stock.getNetIncome(j);
 				strTotalAssets = stock.getTotalAssets(j);
+				strTotalDept = stock.getTotalDept(j);
 				roa = stock.getROA(j);
+				roe = stock.getROE(j);
 
 				strYearProfits += strYear + "," + strYearProfit + "  ";
 				strNetIncomes += strYear + "," + strNetIncome + "  ";
 				strTotalAssetTotals += strYear + "," + strTotalAssets + "  ";
+				strTotalDepts += strYear + "," + strTotalDept + "  ";
 				strROAs += strYear + "," + roa + "  ";
+				strROEs += strYear + "," + roe + "  ";
 				
 				// csv
 				strStockCsv += "," + strYearProfit;
@@ -116,7 +126,9 @@ public class Main {
 			Prt.w(strYearProfits);	
 			Prt.w(strNetIncomes);	
 			Prt.w(strTotalAssetTotals);	
-			Prt.w(strROAs);	
+			Prt.w(strTotalDepts);	
+			Prt.w(strROAs);		
+			Prt.w(strROEs);	
 			
 			//listFinancialStatement.add(strStockCsv);
 			CsvMgr.writeFileNoneStop(strStockCsv);
