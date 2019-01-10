@@ -438,6 +438,9 @@ class YearReport {
 		mStrTotalDept = translateMinus(strDept);
 	}
 
+	/**
+	 * ROA - Return on Assets. 총자본수익률(총자본==자기자본+부채)
+	 */
 	public void updateROA() {
 		if(StrUtil.isNull(mStrNetIncome))
 			return;
@@ -449,6 +452,7 @@ class YearReport {
 	}
 
 	/**
+	 * ROE - Return on Equity. 자기자본수익률(부채를 제외한 자기자본)
 	 * NetIncom / (TotalAssets - TotalDept)
 	 */
 	public void updateROE() {
