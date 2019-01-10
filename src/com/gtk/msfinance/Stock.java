@@ -266,7 +266,7 @@ public class Stock {
 				int targetIdx = 0;
 				
 				if(isMultiItemsInTd(item)) {
-					targetIdx = getMultiItemsIndexInTd(item);
+					targetIdx = getMultiItemsIndexInTd(item, key);
 					if(targetIdx == -1) // not found
 						break;
 					isMultiItemsInTd = true;
@@ -315,7 +315,7 @@ public class Stock {
 	 * case, variable items in one <td>
 	 * <td width="209" height="227" valign="TOP">[매출액]<br>[영업이익(영업손실)]<br>[계속영업당기순이익(손실)]<br>[중단영업당기순이익(손실)]<br>[당기순이익(당기순손실)]<br>지배기업소유주지분 순이익<br>비지배지분 순이익<br>총포괄손익<br>기본주당순이익<br>희석주당순이익</td> 
 	 */
-	private int getMultiItemsIndexInTd(Element item) {
+	private int getMultiItemsIndexInTd(Element item, String key) {
 		int targetIdx = -1;
 		List<Node> listChild = item.childNodes(); //[매출액]<br>[영업이익(영업손실)]<br>[계속영업당기순이익(손실)]<br>[중단영업당기순이익(손실)]<br>[당기순이익(당기순손실)]<br>지배기업소유주지분 순이익<br>비지배지분 순이익<br>총포괄손익<br>기본주당순이익<br>희석주당순이익
 		
@@ -325,7 +325,7 @@ public class Stock {
 		int len = listChild.size();
 		for(int i = 0; i < len; i++) {
 			String s = listChild.get(i).toString();
-			if(listChild.get(i).toString().contains(STR_YEAR_PROFIT_KEY)) {
+			if(listChild.get(i).toString().contains(key)) {
 				targetIdx = i;
 				break;
 			}
